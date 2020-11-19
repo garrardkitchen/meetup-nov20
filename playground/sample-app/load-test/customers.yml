@@ -1,0 +1,15 @@
+config:
+  target: http://20.68.184.163:3002
+  phases:
+    - duration: 60
+      arrivalRate: 1000
+  payload:
+    path: "customers.csv"
+    fields:
+      - "name"
+scenarios:
+  - flow:
+      - post:
+          url: "/customer/add"
+          json:
+            name: "{{ name }}"

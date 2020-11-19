@@ -1,0 +1,25 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: statestore
+  namespace: dapr-demo
+spec:
+  type: state.redis
+  metadata:
+  - name: redisHost
+    value: cache.dapr-demo.svc.cluster.local:6379
+  - name: redisPassword
+    value: password
+---
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: pubsub
+  namespace: dapr-demo
+spec:
+  type: pubsub.redis
+  metadata:
+  - name: redisHost
+    value: cache.dapr-demo.svc.cluster.local:6379
+  - name: redisPassword
+    value: password

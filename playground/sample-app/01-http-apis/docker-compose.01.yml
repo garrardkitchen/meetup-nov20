@@ -1,0 +1,31 @@
+version: '3'
+services:
+  # customer-api:
+  #   build: ./sample-app
+  #   restart: always
+  #   ports:
+  #     - "3002:3000"
+  #   networks:
+  #     - backend      
+  #   environment:       
+  #     - MONGODB_DOMAIN=localhost
+  #     - MONGODB_USERNAME=garrardkitchen      
+  #     - MONGODB_PASSWORD=mypassword    
+  #   depends_on:
+  #     - mongodb-svc               
+  mongodb-svc:    
+    image: mongo
+    restart: always    
+    ports:
+      - "28017:27017"    
+    networks:
+      - backend
+    environment: 
+      - MONGO_USERNAME=garrardkitchen
+      - MONGO_INITDB_ROOT_USERNAME=garrardkitchen
+      - MONGO_INITDB_ROOT_PASSWORD=mypassword        
+      - MONGO_INITDB_DATABASE=sampleapp
+
+networks:
+  backend:
+    driver: bridge

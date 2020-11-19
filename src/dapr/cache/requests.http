@@ -1,0 +1,6 @@
+###
+POST http://51.145.127.142:3004/cache/?key=name&data=garrardkitchen
+
+###
+http://51.145.127.142:3004/cache?key=name
+Content-Type: application/json

@@ -1,0 +1,30 @@
+config:
+  target: "http://51.145.125.69:3007"
+  phases:
+    - duration: 60
+      arrivalRate: 100
+  payload:
+    path: "./customers.csv"
+    skipHeader: true
+    fields:
+      - "id"
+scenarios:
+  - flow:
+      - get:
+          url: "/publish/load"
+#          json:
+#              id: "1"
+#              repetitions: 1
+#              lowamount: 1
+##              delay: 5000
+#              busy: true
+#              highamount: 100
+#      - post:
+#            url: "/publish/withdraw"
+#            json:
+#              id: "1"
+#              repetitions: 1
+#              lowamount: 1
+##              delay: 5000
+#              busy: true
+#              highamount: 5

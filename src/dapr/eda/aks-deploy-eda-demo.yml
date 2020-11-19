@@ -1,0 +1,82 @@
+#apiVersion: v1
+#kind: Namespace
+#metadata:
+#  name: meetup-dapr-demo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: http-eda-svc
+  namespace: meetup-dapr-demo
+  labels:
+    run: http-eda-svc
+spec:
+  type: LoadBalancer    
+  ports:
+  - port: 3005
+    targetPort: 80
+    protocol: TCP  
+  selector:
+    run: http-eda-api
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-eda-api
+  namespace: meetup-dapr-demo
+spec:
+  selector:
+    matchLabels:
+      run: http-eda-api
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: http-eda-api
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/id: "http-eda-api"
+        dapr.io/port: "80"
+        dapr.io/log-level: "debug"
+        dapr.io/config: "appconfig"
+    spec:     
+      containers:
+      - name: http-eda-api
+        image: cf247garrard.azurecr.io/meetup-dapr-eda-redis-http-eda-api:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        env:
+          - name: APP_INSIGHTS_KEY
+            value:
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bank-consumer
+  namespace: meetup-dapr-demo
+spec:
+  selector:
+    matchLabels:
+      run: bank-consumer
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: bank-consumer
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/id: "bank-consumer"
+        dapr.io/port: "80"
+        dapr.io/log-level: "debug"
+        dapr.io/config: "appconfig"
+    spec:
+      containers:
+        - name: bank-consumer
+          image: cf247garrard.azurecr.io/meetup-dapr-eda-redis-bank-consumer:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          env:
+            - name: APP_INSIGHTS_KEY
+              value:

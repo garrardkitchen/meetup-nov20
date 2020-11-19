@@ -1,0 +1,29 @@
+version: '3'
+services:
+  client:
+    build: ./ms-nats-demo/ms-nats-client
+    restart: always
+    ports:
+      - "3000:3000"
+    networks:
+      - backend      
+  math:
+    build: ./ms-nats-demo/ms-nats
+    restart: always
+    hostname: math
+    networks:
+      - backend
+  nats:
+    image: nats
+    restart: always
+    hostname: nats
+    ports:
+      - "4222:4222"
+      # - "8222:8222"
+      # - "6222:6222"
+    networks:
+      - backend      
+
+networks:
+  backend:
+    driver: bridge

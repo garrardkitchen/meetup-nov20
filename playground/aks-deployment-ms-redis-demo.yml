@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: meetup-redis-demo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-svc
+  namespace: meetup-redis-demo
+  labels:
+    run: client-svc
+spec:
+  type: LoadBalancer    
+  ports:
+  - port: 3001
+    targetPort: 3000
+    protocol: TCP  
+  selector:
+    run: client
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-svc
+  namespace: meetup-redis-demo
+  labels:
+    run: redis-svc
+spec:
+  type: ClusterIP    
+  ports:
+  - port: 6379
+    targetPort: 6379    
+    protocol: TCP  
+  selector:
+    run: redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: math
+  namespace: meetup-redis-demo
+spec:  
+  selector:
+    matchLabels:
+      run: math
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: math
+    spec:     
+      hostname: math
+      containers:
+      - name: math        
+        image: cf247garrard.azurecr.io/meetup-ms-redis-math:latest
+        imagePullPolicy: Always           
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client
+  namespace: meetup-redis-demo
+spec:
+  selector:
+    matchLabels:
+      run: client
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: client
+    spec:     
+      containers:
+      - name: client
+        image: cf247garrard.azurecr.io/meetup-ms-redis-client:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: meetup-redis-demo
+spec:
+  selector:
+    matchLabels:
+      run: redis     
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: redis        
+    spec:
+      containers:
+      - name: cache
+        image: redis
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 6379

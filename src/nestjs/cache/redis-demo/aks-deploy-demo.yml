@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: meetup-nestjs-cache-demo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: http-svc
+  namespace: meetup-nestjs-cache-demo
+  labels:
+    run: http-svc
+spec:
+  type: LoadBalancer    
+  ports:
+  - port: 3003
+    targetPort: 3000
+    protocol: TCP  
+  selector:
+    run: http-api
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-svc
+  namespace: meetup-nestjs-cache-demo
+  labels:
+    run: redis-svc
+spec:
+  type: ClusterIP    
+  ports:
+  - port: 6379
+    targetPort: 6379    
+    protocol: TCP  
+  selector:
+    run: redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: math
+  namespace: meetup-nestjs-cache-demo
+spec:  
+  selector:
+    matchLabels:
+      run: math
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: math
+    spec:     
+      hostname: math
+      containers:
+      - name: math        
+        image: cf247garrard.azurecr.io/meetup-nestjs-cache-redis-math-svc:latest
+        imagePullPolicy: Always           
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-api
+  namespace: meetup-nestjs-cache-demo
+spec:
+  selector:
+    matchLabels:
+      run: http-api
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: http-api
+    spec:     
+      containers:
+      - name: client
+        image: cf247garrard.azurecr.io/meetup-nestjs-cache-redis-http-api:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: meetup-nestjs-cache-demo
+spec:
+  selector:
+    matchLabels:
+      run: redis     
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: redis        
+    spec:
+      containers:
+      - name: cache
+        image: redis
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 6379

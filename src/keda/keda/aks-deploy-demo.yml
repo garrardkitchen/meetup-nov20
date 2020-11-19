@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: http-svc
+  namespace: meetup-keda-only-demo
+  labels:
+    run: http-svc
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 3007
+    targetPort: 80
+    protocol: TCP
+  selector:
+    run: http-api
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-api
+  namespace: meetup-keda-only-demo
+spec:
+  selector:
+    matchLabels:
+      run: http-api
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: http-api
+    spec:
+      containers:
+      - name: http-api
+        image: cf247garrard.azurecr.io/meetup-keda-redis-http-api:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        env:
+          - name: APP_INSIGHTS_KEY
+            value:
+          - name: "redis__host"
+            value: redis-svc.meetup-keda-only-demo.svc.cluster.local:6379
+          - name: "redis__password"
+            valueFrom:
+              secretKeyRef:
+                name: db-passwords
+                key: redis-password
+          - name: ASPNETCORE_ENVIRONMENT
+            value: Production
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer
+  namespace: meetup-keda-only-demo
+spec:
+  selector:
+    matchLabels:
+      run: consumer
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: consumer
+    spec:
+      containers:
+        - name: consumer
+          image: cf247garrard.azurecr.io/meetup-keda-redis-consumer-demo:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          env:
+            - name: APP_INSIGHTS_KEY
+              value:
+            - name: "redis__host"
+              value: redis-svc.meetup-keda-only-demo.svc.cluster.local:6379
+            - name: "redis__password"
+              valueFrom:
+                secretKeyRef:
+                  name: db-passwords
+                  key: redis-password
+            - name: DOTNET_ENVIRONMENT
+              value: Production

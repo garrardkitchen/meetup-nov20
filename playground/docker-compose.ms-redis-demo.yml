@@ -1,0 +1,19 @@
+version: '3'
+services:
+  client:
+    build: ./ms-redis-demo/ms-redis-client
+    restart: always
+    ports:
+      - "3000:3000"
+    networks:
+      - backend      
+  math:
+    build: ./ms-redis-demo/ms-redis
+    restart: always
+    hostname: math
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

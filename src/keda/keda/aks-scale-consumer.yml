@@ -1,0 +1,32 @@
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: keda-redis-stream-triggerauth
+  namespace: meetup-keda-only-demo
+spec:
+  secretTargetRef:
+    - parameter: password
+      name: db-passwords
+      key: redis-password
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: redis-streams-scaledobject
+  namespace: meetup-keda-only-demo
+spec:
+  scaleTargetRef:
+    name: consumer
+  pollingInterval: 5
+  cooldownPeriod: 5
+  maxReplicaCount: 5
+  minReplicaCount: 1
+  triggers:
+    - type: redis-streams
+      metadata:
+        address: redis-svc.meetup-keda-only-demo.svc.cluster.local:6379
+        stream: bank-consumer
+        consumerGroup: bank-consumer
+        pendingEntriesCount: "10"
+      authenticationRef:
+        name: keda-redis-stream-triggerauth

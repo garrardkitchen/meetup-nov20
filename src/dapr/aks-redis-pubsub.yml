@@ -1,0 +1,14 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: pubsub
+  namespace: meetup-dapr-demo
+spec:
+  type: pubsub.redis
+  metadata:
+    - name: redisHost
+      value: redis-svc.meetup-dapr-demo.svc.cluster.local:6379
+    - name: redisPassword
+      secretKeyRef:
+        name: db-passwords
+        key: redis-password

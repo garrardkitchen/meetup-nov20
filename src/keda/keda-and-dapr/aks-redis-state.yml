@@ -1,0 +1,14 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: mystore
+  namespace: meetup-keda-demo
+spec:
+  type: state.redis
+  metadata:
+    - name: redisHost
+      value: redis-svc.meetup-keda-demo.svc.cluster.local:6379
+    - name: redisPassword
+      secretKeyRef:
+        name: db-passwords
+        key: redis-password

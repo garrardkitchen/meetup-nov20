@@ -1,0 +1,22 @@
+version: '3'
+services:
+  client:
+    build: ./ms-tcp-demo/ms-tcp-client
+    restart: always
+    hostname: client
+    ports:
+      - "3000:3000"
+    networks:
+      - backend      
+  math:
+    build: ./ms-tcp-demo/ms-tcp
+    restart: always
+    hostname: math
+    ports:
+      - "3100:3100"    
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

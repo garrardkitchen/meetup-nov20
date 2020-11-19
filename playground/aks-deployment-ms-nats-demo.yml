@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: meetup-nats-demo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-svc
+  namespace: meetup-nats-demo
+  labels:
+    run: client-svc
+spec:
+  type: LoadBalancer    
+  ports:
+  - port: 3001
+    targetPort: 3000
+    protocol: TCP  
+  selector:
+    run: client
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats-svc
+  namespace: meetup-nats-demo
+  labels:
+    run: nats-svc
+spec:
+  type: ClusterIP    
+  ports:
+  - port: 4222
+    targetPort: 4222    
+    protocol: TCP  
+  selector:
+    run: nats
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: math
+  namespace: meetup-nats-demo
+spec:  
+  selector:
+    matchLabels:
+      run: math
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: math
+    spec:     
+      hostname: math
+      containers:
+      - name: math        
+        image: cf247garrard.azurecr.io/meetup-ms-nats-math:latest
+        imagePullPolicy: Always           
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client
+  namespace: meetup-nats-demo
+spec:
+  selector:
+    matchLabels:
+      run: client
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: client
+    spec:     
+      containers:
+      - name: client
+        image: cf247garrard.azurecr.io/meetup-ms-nats-client:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nats
+  namespace: meetup-nats-demo
+spec:
+  selector:
+    matchLabels:
+      run: nats     
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: nats        
+    spec:
+      containers:
+      - name: nats
+        image: nats
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 4222 

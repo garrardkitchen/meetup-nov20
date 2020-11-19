@@ -1,0 +1,34 @@
+POST http://localhost:3000/customer/add HTTP/1.1
+content-type: application/json
+
+{
+    "name": "Garrard Kitchen-{{$randomInt 16 60}}",
+    "age" : {{$randomInt 16 60}}  
+}
+
+###
+
+POST http://localhost:3000/product/add HTTP/1.1
+content-type: application/json
+
+{
+    "name": "PC-{{$randomInt 1 1000}}",
+    "price" : {{$randomInt 1 1000}},
+    "description": "A high spec PC"
+}
+
+###
+
+
+POST http://localhost:3000/order/add HTTP/1.1
+content-type: application/json
+
+{
+  "customerId": "5fa1aa4b4ca5ca6e30a37b9b",
+
+  "orderPlaced": "{{$datetime iso8601}}",
+
+  "items": [{"id" : "5fa1ab6e4ca5ca6e30a37bbe"}, {"id": "5fa1ab6e4ca5ca6e30a37bbd"}]
+}
+
+###

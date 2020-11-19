@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-svc
+  namespace: meetup-dapr-demo
+  labels:
+    run: redis-svc
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 6379
+      targetPort: 6379
+      protocol: TCP
+  selector:
+    run: redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: meetup-dapr-demo
+spec:
+  selector:
+    matchLabels:
+      run: redis
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: redis
+    spec:
+      containers:
+        - name: cache
+          image: redis
+          args: ["redis-server", "--requirepass", $(PASSWORD) ]
+          env:
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-passwords
+                  key: redis-password
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          ports:
+            - containerPort: 6379

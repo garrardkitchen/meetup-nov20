@@ -1,0 +1,30 @@
+version: '3'
+services:
+  http-api:
+    build: ./http-api
+    restart: always
+    ports:
+      - "3000:3000"
+    networks:
+      - backend
+    environment:
+      - REDIS_SVC_SERVICE_HOST=redis
+  math-svc:
+    build: ./math-svc
+    restart: always
+    hostname: math
+    networks:
+      - backend
+    environment:
+      - REDIS_SVC_SERVICE_HOST=redis
+  redis:
+    image: redis
+    restart: always
+    hostname: redis
+    ports:
+      - 6379:6379
+    networks:
+      - backend
+networks:
+  backend:
+    driver: bridge

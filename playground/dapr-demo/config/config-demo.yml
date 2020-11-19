@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-demo-2
+  namespace: dapr-demo
+data:
+  foo: baa
+  name: garrard  
